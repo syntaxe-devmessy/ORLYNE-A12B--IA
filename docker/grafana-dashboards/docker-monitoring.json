@@ -1,0 +1,32 @@
+{
+  "dashboard": {
+    "title": "Docker Containers",
+    "description": "Monitoring des conteneurs Docker",
+    "tags": ["docker", "containers"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "CPU Usage",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "rate(container_cpu_usage_seconds_total{container_label_com_docker_compose_service=~\"orlyne|redis|postgres\"}[1m])",
+            "legendFormat": "{{container_label_com_docker_compose_service}}"
+          }
+        ]
+      },
+      {
+        "title": "Memory Usage",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "container_memory_usage_bytes{container_label_com_docker_compose_service=~\"orlyne|redis|postgres\"}",
+            "legendFormat": "{{container_label_com_docker_compose_service}}"
+          }
+        ]
+      }
+    ]
+  }
+}
