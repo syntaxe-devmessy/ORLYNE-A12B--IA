@@ -99,4 +99,101 @@ class CodeAnalyzer:
                 "valid": False
             }
     
-    def _analy
+    def _analyze_javascript(self, code: str) -> Dict[str, Any]:
+        """Analyse basique pour JavaScript"""
+        lines = code.split('\n')
+        
+        # Détection des fonctions
+        function_pattern = r'function\s+(\w+)\s*\([^)]*\)|\w+\s*=\s*function\s*\([^)]*\)|const\s+(\w+)\s*=\s*\([^)]*\)\s*=>'
+        functions = re.findall(function_pattern, code)
+        
+        # Détection des imports
+        import_pattern = r'(import|require)\s*\(?[\'"].*[\'"]\)?'
+        imports = re.findall(import_pattern, code)
+        
+        return {
+            "language": "javascript",
+            "stats": {
+                "lines": len(lines),
+                "code_lines": len([l for l in lines if l.strip() and not l.strip().startswith('//')]),
+                "comment_lines": len([l for l in lines if l.strip().startswith('//') or l.strip().startswith('/*')]),
+                "empty_lines": len([l for l in lines if not l.strip()])
+            },
+            "functions": len([f for f in functions if f]),
+            "imports": len(imports)
+        }
+    
+    def _analyze_java(self, code: str) -> Dict[str, Any]:
+        """Analyse basique pour Java"""
+        lines = code.split('\n')
+        
+        # Détection des classes
+        class_pattern = r'class\s+(\w+)'
+        classes = re.findall(class_pattern, code)
+        
+        # Détection des méthodes
+        method_pattern = r'(public|private|protected)?\s+\w+\s+(\w+)\s*\([^)]*\)\s*\{?'
+        methods = re.findall(method_pattern, code)
+        
+        return {
+            "language": "java",
+            "stats": {
+                "lines": len(lines),
+                "code_lines": len([l for l in lines if l.strip() and not l.strip().startswith('//') and not l.strip().startswith('/*')]),
+                "comment_lines": len([l for l in lines if l.strip().startswith('//') or l.strip().startswith('/*') or l.strip().startswith('*')]),
+                "empty_lines": len([l for l in lines if not l.strip()])
+            },
+            "classes": classes,
+            "methods": len(methods)
+        }
+    
+    def _analyze_cpp(self, code: str) -> Dict[str, Any]:
+        """Analyse basique pour C++"""
+        lines = code.split('\n')
+        
+        # Détection des includes
+        include_pattern = r'#include\s*[<"][^>"]+[>"]'
+        includes = re.findall(include_pattern, code)
+        
+        return {
+            "language": "cpp",
+            "stats": {
+                "lines": len(lines),
+                "code_lines": len([l for l in lines if l.strip() and not l.strip().startswith('//') and not l.strip().startswith('/*')]),
+                "comment_lines": len([l for l in lines if l.strip().startswith('//') or l.strip().startswith('/*') or l.strip().startswith('*')]),
+                "empty_lines": len([l for l in lines if not l.strip()])
+            },
+            "includes": includes
+        }
+    
+    def _analyze_generic(self, code: str) -> Dict[str, Any]:
+        """Analyse générique pour tout langage"""
+        lines = code.split('\n')
+        
+        return {
+            "language": "unknown",
+            "stats": {
+                "lines": len(lines),
+                "code_lines": len([l for l in lines if l.strip()]),
+                "empty_lines": len([l for l in lines if not l.strip()])
+            },
+            "characters": len(code),
+            "words": len(code.split())
+        }
+    
+    def _ast_to_dict(self, node) -> Dict:
+        """Convertit un nœud AST en dictionnaire"""
+        if isinstance(node, ast.AST):
+            result = {
+                "_type": node.__class__.__name__,
+                "lineno": getattr(node, 'lineno', None),
+                "col_offset": getattr(node, 'col_offset', None)
+            }
+            for field in node._fields:
+                value = getattr(node, field)
+                result[field] = self._ast_to_dict(value)
+            return result
+        elif isinstance(node, list):
+            return [self._ast_to_dict(item) for item in node]
+        else:
+            return node
