@@ -323,3 +323,8 @@ class ConversationMemory:
         
         cursor.execute('''
             DELETE FROM conversations
+            WHERE start_time < ?
+        ''', (cutoff,))
+        
+        conn.commit()
+        conn.close()
