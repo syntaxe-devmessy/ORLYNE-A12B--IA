@@ -1,0 +1,63 @@
+# Git
+.git
+.gitignore
+.github
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+*.egg-info/
+dist/
+build/
+
+# Data
+data/models/*
+!data/models/.gitkeep
+data/logs/*
+data/conversations/*
+data/knowledge/*
+backups/
+
+# Tests
+tests/
+*.test.py
+.coverage
+htmlcov/
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Documentation
+docs/
+README.md
+ARCHITECTURE.md
+API.md
+
+# Node
+node_modules/
+package-lock.json
+yarn.lock
+
+# Secrets
+*.pem
+*.key
+*.crt
+secrets/
