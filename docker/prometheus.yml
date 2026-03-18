@@ -1,0 +1,26 @@
+# Configuration Prometheus pour ORLYNE-A12B
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files:
+  - "alerts.yml"
+
+scrape_configs:
+  - job_name: 'orlyne'
+    static_configs:
+      - targets: ['orlyne:8000']
+    metrics_path: '/metrics'
+    
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+      
+  - job_name: 'docker'
+    static_configs:
+      - targets: ['172.17.0.1:9323']
