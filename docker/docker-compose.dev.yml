@@ -1,0 +1,35 @@
+version: '3.8'
+
+# Version développement avec hot reload et debugging
+services:
+  orlyne:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    image: syntaxetech/orlyne-a12b:dev
+    container_name: orlyne-a12b-dev
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+      - "5678:5678"  # Debug port
+    volumes:
+      - ../:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../data:/data
+      - ../models:/models
+    environment:
+      - ORLYNE_ENV=development
+      - ORLYNE_DEVICE=cpu
+      - ORLYNE_LOG_LEVEL=DEBUG
+      - DEBUG=true
+      - PYTHONBREAKPOINT=0
+    command: ["python", "-m", "debugpy", "--listen", "0.0.0.0:5678", "-m", "src.main"]
+    
+  redis:
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-dev-data:/data
+
+volumes:
+  redis-dev-data:
