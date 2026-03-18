@@ -1,0 +1,53 @@
+{
+  "dashboard": {
+    "title": "ORLYNE-A12B Dashboard",
+    "description": "Monitoring pour l'assistant IA Orlyne",
+    "tags": ["orlyne", "ai", "monitoring"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "Requêtes par minute",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "rate(orlyne_requests_total[1m])",
+            "legendFormat": "Requêtes"
+          }
+        ]
+      },
+      {
+        "title": "Temps de réponse moyen",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "rate(orlyne_response_time_seconds_sum[1m]) / rate(orlyne_response_time_seconds_count[1m])",
+            "legendFormat": "Temps moyen"
+          }
+        ]
+      },
+      {
+        "title": "Utilisation GPU",
+        "type": "gauge",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "orlyne_gpu_utilization"
+          }
+        ]
+      },
+      {
+        "title": "Mémoire utilisée",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "orlyne_memory_usage_bytes",
+            "legendFormat": "Mémoire"
+          }
+        ]
+      }
+    ]
+  }
+}
