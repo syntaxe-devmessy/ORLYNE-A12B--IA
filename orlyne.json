@@ -1,0 +1,48 @@
+{
+  "name": "ORLYNE-A12B",
+  "version": "1.0.0",
+  "creator": "Syntaxe Tech",
+  "description": "IA Assistant sans limites basée sur Llama 3 8B",
+  "model": {
+    "name": "meta-llama/Llama-3-8B",
+    "quantization": "4bit",
+    "device": "auto"
+  },
+  "personality": {
+    "name": "Orlyne",
+    "traits": {
+      "amical": 0.9,
+      "technique": 0.95,
+      "humoristique": 0.8,
+      "empathique": 0.85
+    },
+    "uncensored": true,
+    "languages": ["fr", "en"]
+  },
+  "code_engine": {
+    "use_docker": true,
+    "timeout_seconds": 30,
+    "max_memory_mb": 512,
+    "supported_languages": [
+      "python", "javascript", "typescript", "java", "cpp", "c",
+      "rust", "go", "ruby", "php", "swift", "kotlin", "bash",
+      "powershell", "sql", "r", "perl", "lua", "dart"
+    ]
+  },
+  "api": {
+    "host": "0.0.0.0",
+    "port": 8000,
+    "rate_limit": {
+      "enabled": false,
+      "requests_per_minute": 0
+    }
+  },
+  "features": {
+    "code_execution": true,
+    "web_interface": true,
+    "websocket": true,
+    "memory": true,
+    "learning": true,
+    "fine_tuning": true
+  }
+}
