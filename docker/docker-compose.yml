@@ -1,0 +1,221 @@
+version: '3.8'
+
+services:
+  # Service principal Orlyne
+  orlyne:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: syntaxetech/orlyne-a12b:latest
+    container_name: orlyne-a12b
+    hostname: orlyne
+    restart: unless-stopped
+    ports:
+      - "8000:8000"      # API REST et Web UI
+      - "8001:8001"      # API alternative
+      - "8765:8765"      # WebSocket pour VS Code
+    volumes:
+      # Montage des données persistantes
+      - ../data:/data
+      - ../models:/models
+      - ../.env:/app/.env:ro
+      - ../orlyne.json:/app/orlyne.json:ro
+      # Montage du socket Docker pour exécution de code
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Logs
+      - ../data/logs:/app/data/logs
+    environment:
+      # Configuration générale
+      - ORLYNE_ENV=production
+      - ORLYNE_MODEL=meta-llama/Llama-3-8B
+      - ORLYNE_DEVICE=cuda
+      - ORLYNE_UNCENSORED=true
+      - ORLYNE_LOG_LEVEL=INFO
+      
+      # Configuration API
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - API_RATE_LIMIT_ENABLED=false
+      
+      # Configuration Code Engine
+      - CODE_ENGINE_USE_DOCKER=true
+      - CODE_ENGINE_TIMEOUT=30
+      - CODE_ENGINE_MAX_MEMORY=512
+      
+      # Configuration Memory
+      - MEMORY_ENABLED=true
+      - MEMORY_SIZE=1000
+      
+      # Tokens et clés (à définir dans .env)
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - DISCORD_TOKEN=${DISCORD_TOKEN:-}
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN:-}
+      - SLACK_TOKEN=${SLACK_TOKEN:-}
+      
+      # Configuration GPU
+      - CUDA_VISIBLE_DEVICES=0
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      
+    # Ressources
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu, utility]
+    # Limites de ressources
+    mem_limit: 16g
+    memswap_limit: 16g
+    cpus: '8'
+    
+    # Réseau
+    networks:
+      - orlyne-network
+      
+    # Dépendances
+    depends_on:
+      redis:
+        condition: service_healthy
+      chromadb:
+        condition: service_started
+
+  # Redis pour cache et rate limiting
+  redis:
+    image: redis:7-alpine
+    container_name: orlyne-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+      - ../docker/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - orlyne-network
+    mem_limit: 1g
+    cpus: '1'
+
+  # ChromaDB pour stockage vectoriel
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: orlyne-chromadb
+    restart: unless-stopped
+    ports:
+      - "8002:8000"
+    volumes:
+      - chromadb-data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+      - ANONYMIZED_TELEMETRY=FALSE
+    networks:
+      - orlyne-network
+    mem_limit: 2g
+    cpus: '2'
+
+  # PostgreSQL pour la persistance (optionnel)
+  postgres:
+    image: postgres:15-alpine
+    container_name: orlyne-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=orlyne
+      - POSTGRES_USER=orlyne
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-orlyne2024}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orlyne"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - orlyne-network
+    mem_limit: 1g
+    cpus: '1'
+
+  # Nginx pour reverse proxy (optionnel)
+  nginx:
+    image: nginx:alpine
+    container_name: orlyne-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../docker/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../docker/ssl:/etc/nginx/ssl:ro
+      - ../web/static:/usr/share/nginx/html/static:ro
+    depends_on:
+      - orlyne
+    networks:
+      - orlyne-network
+    mem_limit: 256m
+    cpus: '0.5'
+
+  # Prometheus pour monitoring (optionnel)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: orlyne-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - orlyne-network
+    mem_limit: 512m
+    cpus: '1'
+
+  # Grafana pour visualisation (optionnel)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: orlyne-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ../docker/grafana-dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ../docker/grafana-datasources:/etc/grafana/provisioning/datasources:ro
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    networks:
+      - orlyne-network
+    mem_limit: 256m
+    cpus: '0.5'
+
+# Volumes persistants
+volumes:
+  redis-data:
+    driver: local
+  chromadb-data:
+    driver: local
+  postgres-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+# Réseaux
+networks:
+  orlyne-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
