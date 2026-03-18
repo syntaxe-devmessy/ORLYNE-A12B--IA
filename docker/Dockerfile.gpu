@@ -1,0 +1,33 @@
+# Dockerfile optimisé GPU pour ORLYNE-A12B
+FROM nvidia/cuda:12.1.0-base-ubuntu22.04
+
+LABEL maintainer="Syntaxe Tech"
+LABEL description="ORLYNE-A12B avec support GPU NVIDIA"
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+
+# Installation de Python et des dépendances
+RUN apt-get update && apt-get install -y \
+    python3.11 \
+    python3-pip \
+    python3-venv \
+    curl \
+    wget \
+    git \
+    docker.io \
+    && rm -rf /var/lib/apt/lists/*
+
+# Installation des dépendances CUDA pour PyTorch
+RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["python3", "-m", "src.main"]
