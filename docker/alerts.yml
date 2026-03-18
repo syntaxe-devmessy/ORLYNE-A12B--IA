@@ -1,0 +1,31 @@
+# Alertes Prometheus
+groups:
+  - name: orlyne_alerts
+    interval: 30s
+    rules:
+      - alert: HighResponseTime
+        expr: orlyne_response_time_seconds > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Temps de réponse élevé"
+          description: "Le temps de réponse moyen est de {{ $value }}s"
+
+      - alert: HighErrorRate
+        expr: rate(orlyne_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Taux d'erreur élevé"
+          description: "Le taux d'erreur est de {{ $value }}"
+
+      - alert: LowMemory
+        expr: orlyne_memory_available_bytes < 1e9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Mémoire faible"
+          description: "Espace mémoire disponible inférieur à 1GB"
