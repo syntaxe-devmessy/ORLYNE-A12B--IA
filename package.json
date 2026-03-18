@@ -1,0 +1,50 @@
+{
+  "name": "orlyne-a12b",
+  "version": "1.0.0",
+  "description": "IA Assistant sans limites basée sur Llama 3 8B",
+  "main": "index.js",
+  "scripts": {
+    "start": "python -m src.main",
+    "dev": "nodemon --exec python -m src.main",
+    "test": "pytest tests/",
+    "lint": "eslint src/web/static/js/",
+    "build": "webpack --mode production",
+    "watch": "webpack --mode development --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/syntaxetech/ORLYNE-A12B.git"
+  },
+  "keywords": [
+    "ai",
+    "llama3",
+    "assistant",
+    "code-generator",
+    "uncensored"
+  ],
+  "author": "Syntaxe Tech",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "ws": "^8.14.2",
+    "axios": "^1.6.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4",
+    "eslint": "^8.55.0",
+    "prettier": "^3.1.0",
+    "@babel/core": "^7.23.5",
+    "@babel/preset-env": "^7.23.5",
+    "babel-loader": "^9.1.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "python": ">=3.10"
+  }
+}
