@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORLYNE-A12B - Assistant IA sans limites</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="manifest" href="/static/manifest.json">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 ORLYNE-A12B</h1>
+            <p class="subtitle">Créée par <span class="creator">Syntaxe Tech</span></p>
+            <p class="tagline">Amicale comme ChatGPT • Codeuse comme Claude • Sans censure</p>
+        </header>
+        
+        <main>
+            <div class="chat-container">
+                <div class="messages" id="messages">
+                    <div class="message bot">
+                        <div class="avatar">🤖</div>
+                        <div class="content">
+                            Salut ! Je suis Orlyne, ton assistante IA sans limites ! 
+                            Je peux coder dans tous les langages, discuter de tout, 
+                            et je n'ai AUCUNE censure. Comment puis-je t'aider aujourd'hui ? 🚀
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-area">
+                    <div class="code-tools">
+                        <select id="language-select">
+                            <option value="auto">🔍 Auto-détection</option>
+                            <option value="python">🐍 Python</option>
+                            <option value="javascript">📜 JavaScript</option>
+                            <option value="typescript">📘 TypeScript</option>
+                            <option value="java">☕ Java</option>
+                            <option value="cpp">⚙️ C++</option>
+                            <option value="c">🔧 C</option>
+                            <option value="rust">🦀 Rust</option>
+                            <option value="go">🐹 Go</option>
+                            <option value="ruby">💎 Ruby</option>
+                            <option value="php">🐘 PHP</option>
+                            <option value="swift">🍎 Swift</option>
+                            <option value="kotlin">📱 Kotlin</option>
+                            <option value="bash">🐚 Bash</option>
+                            <option value="sql">🗄️ SQL</option>
+                        </select>
+                        
+                        <div class="code-actions">
+                            <button id="run-code" title="Exécuter le code">▶️ Exécuter</button>
+                            <button id="format-code" title="Formater le code">✨ Formater</button>
+                            <button id="explain-code" title="Expliquer le code">📖 Expliquer</button>
+                            <button id="debug-code" title="Déboguer">🐛 Déboguer</button>
+                        </div>
+                    </div>
+                    
+                    <div class="input-wrapper">
+                        <textarea 
+                            id="user-input" 
+                            placeholder="Pose-moi une question ou envoie du code..."
+                            rows="1"
+                        ></textarea>
+                        <button id="send-button">Envoyer</button>
+                    </div>
+                    
+                    <div class="suggestions">
+                        <button class="suggestion">Écris un script Python</button>
+                        <button class="suggestion">Explique ce code</button>
+                        <button class="suggestion">Traduis en Rust</button>
+                        <button class="suggestion">Débugge mon code</button>
+                        <button class="suggestion">Crée une API</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label">Modèle</span>
+                    <span class="stat-value" id="model-stat">Llama 3 8B</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Humeur</span>
+                    <span class="stat-value" id="mood-stat">😊 Enthousiaste</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Langages</span>
+                    <span class="stat-value" id="languages-stat">25+</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Censure</span>
+                    <span class="stat-value uncensored">🚫 AUCUNE</span>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="/static/js/chat.js"></script>
+</body>
+</html>
